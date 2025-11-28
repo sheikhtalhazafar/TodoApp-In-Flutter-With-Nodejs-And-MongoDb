@@ -8,7 +8,7 @@ app.use(express.urlencoded({
     extended: true
 }))
 
-mongoose.connect('mongodb+srv://talhaDB:test123@nodeapp.6sb0rte.mongodb.net/?appName=NodeApp').then(() => {
+mongoose.connect('MongoDb Url here to connect your Ap with BackEnd').then(() => {
     console.log('Connected to MongoDB Atlas')
 
     app.use('/api', routes)
