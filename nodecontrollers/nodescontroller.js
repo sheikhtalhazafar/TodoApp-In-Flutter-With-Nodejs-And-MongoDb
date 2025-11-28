@@ -1,5 +1,6 @@
 const Usernotes = require('../nodemodel/notesmodel');
 
+
 async function post_notes(req, res) {
     try {
         const usernotes = req.body.notes
@@ -7,7 +8,8 @@ async function post_notes(req, res) {
             return res.status(400).json({ error: 'Note content is required' });
         }
         const savedNote = new Usernotes({
-            notes: usernotes
+            notes: usernotes,
+            userId: req.user._id
         })
         await savedNote.save();
 
@@ -29,7 +31,7 @@ async function post_notes(req, res) {
 
 async function fetch_notes(req, res) {
     try {
-        const notes = await Usernotes.find({}).lean();
+        const notes = await Usernotes.find({ userId: req.user._id }).lean();
 
         if (!notes) {
             return res.status(404).json({
@@ -55,11 +57,14 @@ async function fetch_notes(req, res) {
 async function update_notes(req, res) {
     try {
         const noteId = req.params.id;
+        console.log("Note ID to update : ", noteId)
         const updatedbody = req.body.notes;
-        const updatenotes = await Usernotes.findByIdAndUpdate(noteId, {
-            notes: updatedbody,                     // fields to update
-            new: true
-        });
+        const updatenotes = await Usernotes.findByIdAndUpdate(
+            noteId,
+            { notes: updatedbody },
+            { new: true }
+        );
+
 
         if (!updatenotes) {
             return res.status(404).json({ message: 'Note not found' });

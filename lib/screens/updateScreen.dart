@@ -19,6 +19,7 @@ class _UpdateScreenState extends State<UpdateScreen> {
   TextEditingController updatecontroller = TextEditingController();
   @override
   void initState() {
+     print((' id is : ${widget.id}'));
     // TODO: implement initState
     super.initState();
     updatecontroller.text = widget.text.toString();
@@ -64,7 +65,7 @@ class _UpdateScreenState extends State<UpdateScreen> {
                   child: CircularProgressIndicator(),
                 );
               }
-
+             
               return Padding(
                 padding: const EdgeInsets.all(16.0),
                 child: CustomButton(

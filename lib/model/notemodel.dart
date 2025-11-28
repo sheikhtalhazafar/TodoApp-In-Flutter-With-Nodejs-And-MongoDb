@@ -9,6 +9,7 @@ class NoteModel {
 
   // Convert JSON map to NoteModel
   factory NoteModel.fromJson(Map<String, dynamic> json) {
+    print('${json["userId"]}');
     return NoteModel(
       id: json['_id'] ?? json['id'],
       notes: json['notes'],

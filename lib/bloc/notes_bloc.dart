@@ -5,6 +5,8 @@ import 'package:todo_nodejs/model/notemodel.dart';
 import 'package:todo_nodejs/services/api_services.dart';
 
 class NotesBloc extends Bloc<NotesEvent, NotesState> {
+
+  final auth = Apiservices();
   NotesBloc() : super(const NotesState()) {
     on<PostNOtes>(postanote);
     on<FetchallNOtes>(fetchNOtes);
@@ -16,7 +18,7 @@ class NotesBloc extends Bloc<NotesEvent, NotesState> {
     emit(state.copyWith(message: 'loading'));
 
     final note = NoteModel(notes: event.notes);
-    final String response = await Apiservices.postNotes(note);
+    final String response = await auth.postNotes(note);
 
     emit(state.copyWith(postnote: event.notes, message: response));
   }
@@ -24,7 +26,7 @@ class NotesBloc extends Bloc<NotesEvent, NotesState> {
   void fetchNOtes(FetchallNOtes event, Emitter<NotesState> emit) async {
     emit(state.copyWith(message: 'loading'));
 
-    final List<NoteModel> response = await Apiservices.fetchallNOtes();
+    final List<NoteModel> response = await auth.fetchallNOtes();
     emit(state.copyWith(comingnotes: response, message: 'success'));
   }
 
@@ -32,7 +34,7 @@ class NotesBloc extends Bloc<NotesEvent, NotesState> {
     try {
       emit(state.copyWith(message: 'loading'));
       final note = NoteModel(id: event.id);
-      final String response = await Apiservices.deleteNOte(note);
+      final String response = await auth.deleteNOte(note);
       if (response == 'deleted') {
         // remove note from local list
         final updatedNotes = List<NoteModel>.from(state.allNotes)
@@ -50,7 +52,7 @@ class NotesBloc extends Bloc<NotesEvent, NotesState> {
   void updatenote(UpdateNOtes event, Emitter<NotesState> emit) async {
     emit(state.copyWith(message: 'loading'));
     final note = NoteModel(id: event.id, notes: event.notes);
-    final String response = await Apiservices.postNotes(note);
+    final String response = await auth.updateNotes(note);
     emit(state.copyWith(postnote: event.notes, message: response));
   }
 }

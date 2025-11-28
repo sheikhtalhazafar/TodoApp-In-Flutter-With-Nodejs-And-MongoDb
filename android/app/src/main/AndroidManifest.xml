@@ -3,6 +3,9 @@
         android:label="todo_nodejs"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
+        android:allowBackup="false"
+        android:fullBackupContent="false"
+        android:restoreAnyVersion="false"
         <activity
             android:name=".MainActivity"
             android:exported="true"

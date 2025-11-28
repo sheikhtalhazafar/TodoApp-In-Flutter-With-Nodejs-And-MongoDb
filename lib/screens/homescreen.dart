@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:todo_nodejs/bloc/notes_bloc.dart';
 import 'package:todo_nodejs/bloc/notes_event.dart';
 import 'package:todo_nodejs/bloc/notes_state.dart';
 import 'package:todo_nodejs/screens/addnotescreen.dart';
+import 'package:todo_nodejs/screens/auth/loginScreen.dart';
 import 'package:todo_nodejs/screens/updateScreen.dart';
 import 'package:todo_nodejs/utils/customAppbar.dart';
 
@@ -15,11 +17,23 @@ class Homescreen extends StatefulWidget {
 }
 
 class _HomescreenState extends State<Homescreen> {
+  final storage = const FlutterSecureStorage();
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
     context.read<NotesBloc>().add(FetchallNOtes());
+  }
+
+  Future<void> _logout() async {
+    await storage.deleteAll();
+
+    if (!mounted) return;
+
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(builder: (_) => Loginscreen()),
+    );
   }
 
   @override
@@ -29,28 +43,36 @@ class _HomescreenState extends State<Homescreen> {
       appBar: Customappbar(
         title: 'All notes',
         actions: [
-          InkWell(
-            onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => Addnotescreen()),
-              );
+          PopupMenuButton(
+            onSelected: (value) {
+              if (value == "Add") {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => Addnotescreen()),
+                );
+              }
+              if (value == "Logout") {
+                _logout();
+              }
             },
-            child: Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Container(
-                decoration: BoxDecoration(
-                  border: Border.all(
-                    color: Colors.black, // outline color
-                    width: 1.5, // outline thickness
+            itemBuilder: (context) => [
+              PopupMenuItem(
+                value: 'Add',
+                child: Container(
+                  decoration: BoxDecoration(
+                    border: Border.all(
+                      color: Colors.black, // outline color
+                      width: 1.5, // outline thickness
+                    ),
+                    borderRadius: BorderRadius.circular(
+                      8,
+                    ), // optional rounded corners
                   ),
-                  borderRadius: BorderRadius.circular(
-                    8,
-                  ), // optional rounded corners
+                  child: Icon(Icons.add),
                 ),
-                child: Icon(Icons.add),
               ),
-            ),
+              PopupMenuItem(value: 'Logout', child: Icon(Icons.logout)),
+            ],
           ),
         ],
       ),
@@ -88,6 +110,7 @@ class _HomescreenState extends State<Homescreen> {
                       MaterialPageRoute(
                         builder: (context) => UpdateScreen(
                           text: state.allNotes[index].notes.toString(),
+                          id: state.allNotes[index].id.toString(),
                         ),
                       ),
                     );
@@ -106,19 +129,18 @@ class _HomescreenState extends State<Homescreen> {
                             child: Row(
                               mainAxisAlignment: MainAxisAlignment.end,
                               children: [
-                                menubutton(
-                                  state.allNotes[index].id.toString(),
-                                  state.allNotes[index].notes.toString(),
-                                  context,
+                                MenuButton(
+                                  id: state.allNotes[index].id.toString(),
+                                  updateText: state.allNotes[index].notes
+                                      .toString(),
                                 ),
                               ],
                             ),
                           ),
-                        Text(
-                              state.allNotes[index].notes.toString(),
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                         
+                          Text(
+                            state.allNotes[index].notes.toString(),
+                            overflow: TextOverflow.ellipsis,
+                          ),
                         ],
                       ),
                     ),
@@ -133,24 +155,25 @@ class _HomescreenState extends State<Homescreen> {
   }
 }
 
-Widget menubutton(String id, String updateText, BuildContext context) {
-  return PopupMenuButton<String>(
-    onSelected: (value) {
-      // if (value == 'edit') {
-      //   Navigator.push(
-      //     context,
-      //     MaterialPageRoute(
-      //       builder: (context) => UpdateScreen(text: updateText, id: id),
-      //     ),
-      //   );
-      // }
-      if (value == 'delete') {
-        context.read<NotesBloc>().add(DeleteNOtes(id: id));
-      }
-    },
-    itemBuilder: (context) => [
-      // PopupMenuItem(value: 'edit', child: Icon(Icons.edit)),
-      PopupMenuItem(value: 'delete', child: Icon(Icons.delete)),
-    ],
-  );
+class MenuButton extends StatelessWidget {
+  final String id;
+  final String updateText;
+
+  const MenuButton({super.key, required this.id, required this.updateText});
+
+  @override
+  Widget build(BuildContext context) {
+    print('id in menu : $id');
+    return PopupMenuButton(
+      onSelected: (value) {
+        if (value == "delete") {
+          print("Deleting: $id");
+          context.read<NotesBloc>().add(DeleteNOtes(id: id));
+        }
+      },
+      itemBuilder: (context) => [
+        PopupMenuItem(value: 'delete', child: Icon(Icons.delete)),
+      ],
+    );
+  }
 }

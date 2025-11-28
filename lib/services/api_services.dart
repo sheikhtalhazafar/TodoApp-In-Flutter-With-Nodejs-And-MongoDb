@@ -2,14 +2,16 @@ import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 import 'package:todo_nodejs/model/notemodel.dart';
+import 'package:todo_nodejs/services/auth_client.dart';
 
 class Apiservices {
+  final http.Client client = AuthClient();
 
-  static Future<String> postNotes(NoteModel note) async {
+  Future<String> postNotes(NoteModel note) async {
     try {
-      var response = await http.post(
-        Uri.parse('http://192.168.1.34:2000/api/add_notes'),
-        body: note.toJson(),
+      var response = await client.post(
+        Uri.parse('http://192.168.1.36:45702/api/add_notes'),
+        body: jsonEncode(note.toJson()),
       );
       if (response.statusCode == 200) {
         if (kDebugMode) {
@@ -27,10 +29,10 @@ class Apiservices {
     }
   }
 
-  static Future<List<NoteModel>> fetchallNOtes() async {
+  Future<List<NoteModel>> fetchallNOtes() async {
     try {
-      var response = await http.get(
-        Uri.parse('http://192.168.1.34:2000/api/get_notes'),
+      var response = await client.get(
+        Uri.parse('http://192.168.1.36:45702/api/get_notes'),
       );
       if (response.statusCode == 200) {
         if (kDebugMode) {
@@ -47,11 +49,11 @@ class Apiservices {
     }
   }
 
-  static Future<String> deleteNOte(NoteModel idIs) async {
+  Future<String> deleteNOte(NoteModel idIs) async {
     try {
       String id = idIs.id.toString();
-      var response = await http.post(
-        Uri.parse('http://192.168.1.34:2000/api/delete_notes/$id'),
+      var response = await client.post(
+        Uri.parse('http://192.168.1.36:45702/api/delete_notes/$id'),
       );
       if (response.statusCode == 200) {
         if (kDebugMode) {
@@ -66,12 +68,13 @@ class Apiservices {
     }
   }
 
-
-    static Future<String> updateNotes(NoteModel note) async {
+   Future<String> updateNotes(NoteModel note) async {
     try {
-      var response = await http.post(
-        Uri.parse('http://192.168.1.34:2000/api/update_notes${note.id}'),
-        body: note.toJson(),
+      String id = note.id.toString();
+      print(id);
+      var response = await client.post(
+        Uri.parse('http://192.168.1.36:45702/api/update_notes/$id'),
+        body: jsonEncode(note.toJson()),
       );
       if (response.statusCode == 200) {
         if (kDebugMode) {
