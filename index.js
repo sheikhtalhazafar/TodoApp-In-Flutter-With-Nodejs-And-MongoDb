@@ -1,14 +1,16 @@
 const express = require('express')
+const multer = require('multer')
 const app = express()
 const mongoose = require('mongoose')
 const routes = require('./noderoutes/note_routes')
 const route = require('./noderoutes/user_route')
 app.use(express.json());
+const path = require('path'); 
 app.use(express.urlencoded({
     extended: true
 }))
-
-mongoose.connect('MongoDb Url here to connect your Ap with BackEnd').then(() => {
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+mongoose.connect('mongodb+srv://talhaDB:test123@nodeapp.6sb0rte.mongodb.net/?appName=NodeApp').then(() => {
     console.log('Connected to MongoDB Atlas')
 
     app.use('/api', routes)

@@ -3,7 +3,7 @@ const newUser = require('../nodemodel/userModel')
 
 async function requiredFieldsWhenRegister(req, res, next) {
     const { username, email, password } = req.body
-    if (!username && !email && !password) {
+    if (!username || !email || !password) {
         return res.status(400).json({ message: "all Fields are required" })
     }
     req.user = req.body

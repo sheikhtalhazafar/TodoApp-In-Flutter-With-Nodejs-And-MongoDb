@@ -10,7 +10,7 @@ class Apiservices {
   Future<String> postNotes(NoteModel note) async {
     try {
       var response = await client.post(
-        Uri.parse('http://192.168.1.36:45702/api/add_notes'),
+        Uri.parse('http://192.168.1.15:45702/api/add_notes'),
         body: jsonEncode(note.toJson()),
       );
       if (response.statusCode == 200) {
@@ -32,7 +32,7 @@ class Apiservices {
   Future<List<NoteModel>> fetchallNOtes() async {
     try {
       var response = await client.get(
-        Uri.parse('http://192.168.1.36:45702/api/get_notes'),
+        Uri.parse('http://192.168.1.15:45702/api/get_notes'),
       );
       if (response.statusCode == 200) {
         if (kDebugMode) {
@@ -53,7 +53,7 @@ class Apiservices {
     try {
       String id = idIs.id.toString();
       var response = await client.post(
-        Uri.parse('http://192.168.1.36:45702/api/delete_notes/$id'),
+        Uri.parse('http://192.168.1.15:45702/api/delete_notes/$id'),
       );
       if (response.statusCode == 200) {
         if (kDebugMode) {
@@ -73,7 +73,7 @@ class Apiservices {
       String id = note.id.toString();
       print(id);
       var response = await client.post(
-        Uri.parse('http://192.168.1.36:45702/api/update_notes/$id'),
+        Uri.parse('http://192.168.1.15:45702/api/update_notes/$id'),
         body: jsonEncode(note.toJson()),
       );
       if (response.statusCode == 200) {

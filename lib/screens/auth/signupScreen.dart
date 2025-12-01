@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:http/http.dart';
 import 'package:todo_nodejs/auth/auth_bloc.dart';
 import 'package:todo_nodejs/auth/auth_event.dart';
 import 'package:todo_nodejs/auth/auth_state.dart';
@@ -7,6 +8,7 @@ import 'package:todo_nodejs/screens/homescreen.dart';
 import 'package:todo_nodejs/utils/authtextfield.dart';
 import 'package:todo_nodejs/utils/button.dart';
 import 'package:todo_nodejs/utils/customAppbar.dart';
+import 'package:todo_nodejs/utils/pick_image.dart' show PickImage;
 
 class SignupScreen extends StatefulWidget {
   const SignupScreen({super.key});
@@ -19,7 +21,9 @@ class _SignupScreenState extends State<SignupScreen> {
   final nameC = TextEditingController();
   final emailC = TextEditingController();
   final passC = TextEditingController();
-
+  String? filename;
+  String? filepath;
+  PickImage imagepick = PickImage();
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -40,6 +44,59 @@ class _SignupScreenState extends State<SignupScreen> {
                 crossAxisAlignment: CrossAxisAlignment.center,
                 spacing: 10,
                 children: [
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        "Profile Image",
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+
+                      GestureDetector(
+                        onTap: () async {
+                          final file = await imagepick
+                              .pickImage(); // async work first
+
+                          setState(() {
+                            // sync state update
+
+                            filepath = file[0];
+                            filename = file[1];
+                          });
+                        },
+
+                        child: Container(
+                          padding: EdgeInsets.symmetric(
+                            horizontal: 16,
+                            vertical: 14,
+                          ),
+                          decoration: BoxDecoration(
+                            border: Border.all(color: Colors.grey),
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text(
+                                filename ?? "Choose Image",
+                                style: TextStyle(
+                                  color: filename == null
+                                      ? Colors.grey
+                                      : Colors.black,
+                                ),
+                              ),
+                              Icon(Icons.upload_file, color: Colors.blueAccent),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+
                   AuthTextField(label: 'Name', controller: nameC),
                   SizedBox(height: 12),
                   AuthTextField(
@@ -85,6 +142,7 @@ class _SignupScreenState extends State<SignupScreen> {
                                 name: nameC.text.toString(),
                                 email: emailC.text.toString(),
                                 password: passC.text.toString(),
+                                path: filepath
                               ),
                             );
                           },

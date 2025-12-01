@@ -22,6 +22,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
         event.name!,
         event.email!,
         event.password!,
+        event.path!
       );
       print(result);
       if (result == 'success') {
@@ -37,7 +38,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   Future<void> loginUser(LoginEvent event, Emitter<AuthState> emit) async {
     emit(state.copyWith(status: "loading"));
     try {
-      final result = await _auth.login(event.email!, event.password!);
+      final result = await _auth.login(event.email!, event.password!,);
       print(result);
       if (result == 'success') {
         emit(state.copyWith(status: "success"));

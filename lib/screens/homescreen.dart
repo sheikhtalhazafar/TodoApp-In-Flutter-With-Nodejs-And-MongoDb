@@ -1,9 +1,12 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:todo_nodejs/bloc/notes_bloc.dart';
 import 'package:todo_nodejs/bloc/notes_event.dart';
 import 'package:todo_nodejs/bloc/notes_state.dart';
+import 'package:todo_nodejs/model/usermodel.dart';
 import 'package:todo_nodejs/screens/addnotescreen.dart';
 import 'package:todo_nodejs/screens/auth/loginScreen.dart';
 import 'package:todo_nodejs/screens/updateScreen.dart';
@@ -18,11 +21,23 @@ class Homescreen extends StatefulWidget {
 
 class _HomescreenState extends State<Homescreen> {
   final storage = const FlutterSecureStorage();
+  User? user;
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
     context.read<NotesBloc>().add(FetchallNOtes());
+    loadUser();
+  }
+
+  Future<void> loadUser() async {
+    final userData = await storage.read(key: 'UserData');
+    if (userData != null) {
+      final userJson = json.decode(userData);
+      setState(() {
+        user = User.fromJson(userJson);
+      });
+      print(user?.username);
+    }
   }
 
   Future<void> _logout() async {
@@ -75,6 +90,36 @@ class _HomescreenState extends State<Homescreen> {
             ],
           ),
         ],
+      ),
+      drawer: Drawer(
+        child: ListView(
+          padding: EdgeInsets.zero,
+          children: [
+            DrawerHeader(
+              decoration: BoxDecoration(color: Colors.blue),
+              child: Column(
+                children: [
+                  CircleAvatar(
+                    backgroundImage: NetworkImage(user?.profileImage ?? 'https://assets.bucketlistly.blog/sites/5adf778b6eabcc00190b75b1/content_entry5adf77af6eabcc00190b75b6/6075185986d092000b192d0a/files/best-free-travel-images-main-image-op.webp'),
+                  ),
+                  Text(
+                    user?.username ?? "Guest",
+                    style: TextStyle(color: Colors.white, fontSize: 24),
+                  ),
+                ],
+              ),
+            ),
+        
+            ListTile(
+              leading: Icon(Icons.logout),
+              title: Text('Logout'),
+              onTap: () {
+                Navigator.pop(context);
+                _logout(); // your logout function
+              },
+            ),
+          ],
+        ),
       ),
 
       body: RefreshIndicator(

@@ -25,6 +25,7 @@ class _CustomappbarState extends State<Customappbar> {
       title: Text(widget.title, style: TextStyle(fontWeight: FontWeight.bold, fontSize: 30),),
       centerTitle: widget.iscenter,
       actions: widget.actions,
+      
     );
   }
 }

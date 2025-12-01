@@ -15,14 +15,15 @@ async function register(req, res) {
 
         const hashedPass = await bcrypt.hash(password, 10);
         user = await newUser.create({
-            username, email, password: hashedPass
+            username, email, password: hashedPass, profileImage: req.file ? `/uploads/${req.file.filename}` : null
         })
 
         // Remove password before sending response
         const userData = {
             _id: user._id,
             username: user.username,
-            email: user.email
+            email: user.email,
+            profileImage: user.profileImage
         };
 
         return res.status(201).json({
@@ -58,12 +59,15 @@ async function login(req, res) {
                 message: "Wrong Password"
             })
         }
-
+        const imageUrl = user.profileImage
+            ? `http://192.168.1.15:45702${user.profileImage}`
+            : null;
         // Remove password before sending response
         const userData = {
             _id: user._id,
             username: user.username,
-            email: user.email
+            email: user.email,
+            profileImage: imageUrl
         };
         return res.status(200).json({
             message: "User Logged in Successfully",

@@ -14,7 +14,8 @@ const userSchema = new mongoose.Schema({
         type: String,
         require: true,
 
-    }
+    },
+    profileImage: { type: String, default: null },
 })
 
  newUser = mongoose.model('registeredUsers', userSchema)
