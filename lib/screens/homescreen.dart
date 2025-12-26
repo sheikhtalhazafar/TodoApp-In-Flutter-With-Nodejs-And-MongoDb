@@ -1,11 +1,11 @@
 import 'dart:convert';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:todo_nodejs/bloc/notes_bloc.dart';
 import 'package:todo_nodejs/bloc/notes_event.dart';
 import 'package:todo_nodejs/bloc/notes_state.dart';
+import 'package:todo_nodejs/model/notemodel.dart';
 import 'package:todo_nodejs/model/usermodel.dart';
 import 'package:todo_nodejs/screens/addnotescreen.dart';
 import 'package:todo_nodejs/screens/auth/loginScreen.dart';
@@ -83,10 +83,25 @@ class _HomescreenState extends State<Homescreen> {
                       8,
                     ), // optional rounded corners
                   ),
-                  child: Icon(Icons.add),
+                  child: Row(children: [Icon(Icons.add), Text('Add Note')]),
                 ),
               ),
-              PopupMenuItem(value: 'Logout', child: Icon(Icons.logout)),
+              PopupMenuItem(
+                value: 'Logout',
+
+                child: Container(
+                  decoration: BoxDecoration(
+                    border: Border.all(
+                      color: Colors.black, // outline color
+                      width: 1.5, // outline thickness
+                    ),
+                    borderRadius: BorderRadius.circular(
+                      8,
+                    ), // optional rounded corners
+                  ),
+                  child: Row(children: [Icon(Icons.logout), Text('LogOut')]),
+                ),
+              ),
             ],
           ),
         ],
@@ -96,20 +111,40 @@ class _HomescreenState extends State<Homescreen> {
           padding: EdgeInsets.zero,
           children: [
             DrawerHeader(
-              decoration: BoxDecoration(color: Colors.blue),
+              decoration: BoxDecoration(color: Colors.black),
               child: Column(
+                mainAxisAlignment: MainAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  CircleAvatar(
-                    backgroundImage: NetworkImage(user?.profileImage ?? 'https://assets.bucketlistly.blog/sites/5adf778b6eabcc00190b75b1/content_entry5adf77af6eabcc00190b75b6/6075185986d092000b192d0a/files/best-free-travel-images-main-image-op.webp'),
+                  Padding(
+                    padding: EdgeInsets.only(left: 140),
+                    child: CircleAvatar(
+                      radius: 40,
+                      backgroundImage: NetworkImage(
+                        user?.profileImage ??
+                            'https://assets.bucketlistly.blog/sites/5adf778b6eabcc00190b75b1/content_entry5adf77af6eabcc00190b75b6/6075185986d092000b192d0a/files/best-free-travel-images-main-image-op.webp',
+                      ),
+                    ),
                   ),
-                  Text(
-                    user?.username ?? "Guest",
-                    style: TextStyle(color: Colors.white, fontSize: 24),
+                  FittedBox(
+                    fit: BoxFit.contain,
+                    child: Text(
+                      user?.username ?? "Guest",
+                      style: TextStyle(color: Colors.white),
+                    ),
+                  ),
+
+                  FittedBox(
+                    fit: BoxFit.contain,
+                    child: Text(
+                      user?.email ?? "Guest@gmail.com",
+                      style: TextStyle(color: Colors.white),
+                    ),
                   ),
                 ],
               ),
             ),
-        
+
             ListTile(
               leading: Icon(Icons.logout),
               title: Text('Logout'),
@@ -128,21 +163,34 @@ class _HomescreenState extends State<Homescreen> {
         },
         child: BlocConsumer<NotesBloc, NotesState>(
           listener: (context, state) {
-            if (state.message == 'deleted') {
+            if (state.status == NotesStatus.deleted) {
               ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Text('Note deleted successfully!')),
+                SnackBar(content: Text("Note deleted successfully")),
               );
+            }
+            if (state.status == NotesStatus.error) {
+              ScaffoldMessenger.of(
+                context,
+              ).showSnackBar(SnackBar(content: Text("Something went wrong")));
             }
           },
           builder: (context, state) {
-            print('build bloc consumer');
-            if (state.message == 'loading') {
+            if (state.status == NotesStatus.loading) {
               return Center(child: CircularProgressIndicator());
             }
+
             if (state.allNotes.isEmpty) {
-              return Center(child: Center(child: Text('No Notes Found')));
+              return SingleChildScrollView(
+                physics: AlwaysScrollableScrollPhysics(),
+                child: Container(
+                  height: MediaQuery.of(context).size.height * 0.8,
+                  alignment: Alignment.center,
+                  child: Text("No Notes Found", style: TextStyle(fontSize: 18)),
+                ),
+              );
             }
             return GridView.builder(
+              physics: AlwaysScrollableScrollPhysics(),
               gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                 crossAxisCount: 2,
               ),
@@ -208,7 +256,6 @@ class MenuButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    print('id in menu : $id');
     return PopupMenuButton(
       onSelected: (value) {
         if (value == "delete") {

@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:http/http.dart';
 import 'package:todo_nodejs/auth/auth_bloc.dart';
 import 'package:todo_nodejs/auth/auth_event.dart';
 import 'package:todo_nodejs/auth/auth_state.dart';
+import 'package:todo_nodejs/screens/auth/verifyotpscreen.dart';
 import 'package:todo_nodejs/screens/homescreen.dart';
 import 'package:todo_nodejs/utils/authtextfield.dart';
 import 'package:todo_nodejs/utils/button.dart';
@@ -117,7 +117,7 @@ class _SignupScreenState extends State<SignupScreen> {
                       if (state.status == 'success') {
                         Navigator.push(
                           context,
-                          MaterialPageRoute(builder: (context) => Homescreen()),
+                          MaterialPageRoute(builder: (context) => VerifyOtpScreen()),
                         );
                       }
 
@@ -145,6 +145,7 @@ class _SignupScreenState extends State<SignupScreen> {
                                 path: filepath
                               ),
                             );
+                            // Navigator.push(context, MaterialPageRoute(builder: (context)=> VerifyOtpScreen()));
                           },
                         );
                       },

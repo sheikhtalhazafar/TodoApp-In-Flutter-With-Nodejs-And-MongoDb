@@ -64,7 +64,7 @@ class _AddnotescreenState extends State<Addnotescreen> {
                     context.read<NotesBloc>().add(
                       PostNOtes(notes: postcontroller.text),
                     );
-                    state.allNotes.add(NoteModel(notes: postcontroller.text));
+                    // state.allNotes.add(NoteModel(notes: postcontroller.text));
                   },
                 ),
 

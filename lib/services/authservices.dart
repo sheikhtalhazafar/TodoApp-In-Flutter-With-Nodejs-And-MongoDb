@@ -1,4 +1,5 @@
 import 'dart:convert';
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
@@ -21,7 +22,7 @@ class AuthService {
       // Create a multipart request
       var request = http.MultipartRequest(
         'POST',
-        Uri.parse('http://192.168.1.15:45702/newuser/register'),
+        Uri.parse('http://192.168.10.5:45702/newuser/register'),
       );
 
       // Add text fields
@@ -44,8 +45,17 @@ class AuthService {
 
       if (res.statusCode == 201 || res.statusCode == 200) {
         final body = json.decode(res.body);
-        token = body['token'];
-        await storage.write(key: 'auth_token', value: token);
+        // token = body['token'];
+        // await storage.write(key: 'auth_token', value: token);
+        final userJson = body['userDetails'];
+        userData = User.fromJson(userJson);
+
+        await storage.write(
+          key: 'UserData',
+          value: json.encode(userData!.toJson()),
+        );
+
+        // await storage.write(key: 'isLogin', value: 'yes');
 
         return 'success';
       }
@@ -57,10 +67,42 @@ class AuthService {
     }
   }
 
+  Future<bool> verifyotp(String otp, String userid) async {
+    try {
+      print(userid);
+      final res = await http.post(
+        Uri.parse('http://192.168.10.5:45702/newuser/verifyOtp'),
+        body: {'otp': otp, 'userid': userid},
+      );
+      final body = json.decode(res.body);
+      print(body);
+      if (res.statusCode == 201 || res.statusCode == 200) {
+        token = body['token'];
+        await storage.write(key: 'auth_token', value: token);
+        // final userJson = body['userDetails'];
+        // userData = User.fromJson(userJson);
+        // await storage.write(
+        //   key: 'UserData',
+        //   value: json.encode(userData!.toJson()),
+        // );
+
+        await storage.write(key: 'isLogin', value: 'yes');
+
+        return true;
+      }
+      return false;
+    } catch (e) {
+      if (kDebugMode) {
+        print(e.toString());
+      }
+      return false;
+    }
+  }
+
   Future<String> login(String email, String password) async {
     try {
       final res = await http.post(
-        Uri.parse('http://192.168.1.15:45702/newuser/login'),
+        Uri.parse('http://192.168.10.5:45702/newuser/login'),
         body: {'email': email, 'password': password},
       );
       final body = json.decode(res.body);
@@ -75,6 +117,9 @@ class AuthService {
           key: 'UserData',
           value: json.encode(userData!.toJson()),
         );
+
+        await storage.write(key: 'isLogin', value: 'yes');
+
         return 'success';
       }
       return 'failed';

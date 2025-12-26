@@ -5,54 +5,69 @@ import 'package:todo_nodejs/model/notemodel.dart';
 import 'package:todo_nodejs/services/api_services.dart';
 
 class NotesBloc extends Bloc<NotesEvent, NotesState> {
-
-  final auth = Apiservices();
   NotesBloc() : super(const NotesState()) {
-    on<PostNOtes>(postanote);
-    on<FetchallNOtes>(fetchNOtes);
-    on<DeleteNOtes>(deletSpeceficNOtes);
-    on<UpdateNOtes>(updatenote);
+    on<FetchallNOtes>(_fetchNotes);
+    on<PostNOtes>(_addNote);
+    on<DeleteNOtes>(_deleteNote);
+    on<UpdateNOtes>(_updateNote);
   }
 
-  void postanote(PostNOtes event, Emitter<NotesState> emit) async {
-    emit(state.copyWith(message: 'loading'));
+  // FETCH NOTES
+  Future<void> _fetchNotes(
+    FetchallNOtes event,
+    Emitter<NotesState> emit,
+  ) async {
+    Apiservices api = Apiservices();
+    emit(state.copyWith(status: NotesStatus.loading));
 
-    final note = NoteModel(notes: event.notes);
-    final String response = await auth.postNotes(note);
+    final notes = await api.fetchallNOtes();
 
-    emit(state.copyWith(postnote: event.notes, message: response));
+    emit(state.copyWith(status: NotesStatus.success, allNotes: notes));
   }
 
-  void fetchNOtes(FetchallNOtes event, Emitter<NotesState> emit) async {
-    emit(state.copyWith(message: 'loading'));
+  // ADD NOTE
+  Future<void> _addNote(PostNOtes event, Emitter<NotesState> emit) async {
+    emit(state.copyWith(status: NotesStatus.loading));
+    Apiservices api = Apiservices();
+    final response = await api.postNotes(NoteModel(notes: event.notes));
 
-    final List<NoteModel> response = await auth.fetchallNOtes();
-    emit(state.copyWith(comingnotes: response, message: 'success'));
+    emit(
+      state.copyWith(
+        status: response == 'success' ? NotesStatus.success : NotesStatus.error,
+        message: response,
+      ),
+    );
   }
 
-  void deletSpeceficNOtes(DeleteNOtes event, Emitter<NotesState> emit) async {
-    try {
-      emit(state.copyWith(message: 'loading'));
-      final note = NoteModel(id: event.id);
-      final String response = await auth.deleteNOte(note);
-      if (response == 'deleted') {
-        // remove note from local list
-        final updatedNotes = List<NoteModel>.from(state.allNotes)
-          ..removeWhere((note) => note.id == event.id);
+  // DELETE NOTE
+  Future<void> _deleteNote(DeleteNOtes event, Emitter<NotesState> emit) async {
+    emit(state.copyWith(status: NotesStatus.loading));
+    Apiservices api = Apiservices();
+    final result = await api.deleteNOte(NoteModel(id: event.id));
 
-        emit(state.copyWith(comingnotes: updatedNotes, message: 'deleted'));
-      } else {
-        emit(state.copyWith(message: 'Failed'));
-      }
-    } catch (e) {
-      emit(state.copyWith(message: 'Failed'));
+    if (result == 'deleted') {
+      final updated = List<NoteModel>.from(state.allNotes)
+        ..removeWhere((e) => e.id == event.id);
+
+      emit(state.copyWith(status: NotesStatus.deleted, allNotes: updated));
+    } else {
+      emit(state.copyWith(status: NotesStatus.error));
     }
   }
 
-  void updatenote(UpdateNOtes event, Emitter<NotesState> emit) async {
-    emit(state.copyWith(message: 'loading'));
-    final note = NoteModel(id: event.id, notes: event.notes);
-    final String response = await auth.updateNotes(note);
-    emit(state.copyWith(postnote: event.notes, message: response));
+  // UPDATE NOTE
+  Future<void> _updateNote(UpdateNOtes event, Emitter<NotesState> emit) async {
+    emit(state.copyWith(status: NotesStatus.loading));
+    Apiservices api = Apiservices();
+    final response = await api.updateNotes(
+      NoteModel(id: event.id, notes: event.notes),
+    );
+
+    emit(
+      state.copyWith(
+        status: response == 'success' ? NotesStatus.success : NotesStatus.error,
+        message: response,
+      ),
+    );
   }
 }

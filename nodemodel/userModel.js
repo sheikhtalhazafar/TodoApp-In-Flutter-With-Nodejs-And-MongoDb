@@ -15,8 +15,11 @@ const userSchema = new mongoose.Schema({
         require: true,
 
     },
+    isVerified: { type: Boolean, default: false },
+    otp: String,
+    otpExpiry: Date,
     profileImage: { type: String, default: null },
 })
 
- newUser = mongoose.model('registeredUsers', userSchema)
- module.exports = newUser
+newUser = mongoose.model('registeredUsers', userSchema)
+module.exports = newUser

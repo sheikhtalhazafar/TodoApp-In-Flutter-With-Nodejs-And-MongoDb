@@ -7,10 +7,44 @@ import 'package:todo_nodejs/services/auth_client.dart';
 class Apiservices {
   final http.Client client = AuthClient();
 
+  int maxRetries = 3;
+  int retry = 0;
+
+// API with retry mechanism
+  Future<String> postnotes(NoteModel note) async {
+    while (retry < maxRetries) {
+      try {
+        var response = await client.post(
+          Uri.parse('http://192.168.10.5:45702/api/add_notes'),
+          body: jsonEncode(note.toJson()),
+        );
+
+        if (response.statusCode == 200) {
+          print("Success: ${response.body}");
+          return "success";
+        } else {
+          print("Failed: ${response.statusCode}");
+        }
+      } catch (e) {
+        print("Error: $e");
+      }
+
+      retry++;
+      print("Retrying... attempt: $retry");
+
+      // Wait 2 seconds before trying again
+      await Future.delayed(Duration(seconds: 2));
+    }
+
+    return "failed after retries";
+  }
+
+
+// API without retry mechanism
   Future<String> postNotes(NoteModel note) async {
     try {
       var response = await client.post(
-        Uri.parse('http://192.168.1.15:45702/api/add_notes'),
+        Uri.parse('http://192.168.10.5:45702/api/add_notes'),
         body: jsonEncode(note.toJson()),
       );
       if (response.statusCode == 200) {
@@ -32,7 +66,7 @@ class Apiservices {
   Future<List<NoteModel>> fetchallNOtes() async {
     try {
       var response = await client.get(
-        Uri.parse('http://192.168.1.15:45702/api/get_notes'),
+        Uri.parse('http://192.168.10.5:45702/api/get_notes'),
       );
       if (response.statusCode == 200) {
         if (kDebugMode) {
@@ -53,7 +87,7 @@ class Apiservices {
     try {
       String id = idIs.id.toString();
       var response = await client.post(
-        Uri.parse('http://192.168.1.15:45702/api/delete_notes/$id'),
+        Uri.parse('http://192.168.10.5:45702/api/delete_notes/$id'),
       );
       if (response.statusCode == 200) {
         if (kDebugMode) {
@@ -68,12 +102,12 @@ class Apiservices {
     }
   }
 
-   Future<String> updateNotes(NoteModel note) async {
+  Future<String> updateNotes(NoteModel note) async {
     try {
       String id = note.id.toString();
       print(id);
       var response = await client.post(
-        Uri.parse('http://192.168.1.15:45702/api/update_notes/$id'),
+        Uri.parse('http://192.168.10.5:45702/api/update_notes/$id'),
         body: jsonEncode(note.toJson()),
       );
       if (response.statusCode == 200) {

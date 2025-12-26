@@ -1,28 +1,26 @@
 import 'package:equatable/equatable.dart';
 import 'package:todo_nodejs/model/notemodel.dart';
 
-class NotesState extends Equatable {
-  final String postnote;
-  final String message;
+class NotesState {
+  final NotesStatus status;
   final List<NoteModel> allNotes;
+  final String? message;
+
   const NotesState({
-    this.postnote = '',
-    this.message = '',
+    this.status = NotesStatus.initial,
     this.allNotes = const [],
+    this.message,
   });
 
   NotesState copyWith({
-    String? postnote,
+    NotesStatus? status,
+    List<NoteModel>? allNotes,
     String? message,
-    List<NoteModel>? comingnotes,
   }) {
     return NotesState(
-      postnote: postnote ?? this.postnote,
-      message: message ?? this.message,
-      allNotes: comingnotes ?? allNotes,
+      status: status ?? this.status,
+      allNotes: allNotes ?? this.allNotes,
+      message: message,
     );
   }
-
-  @override
-  List<Object> get props => [postnote, allNotes, message];
 }

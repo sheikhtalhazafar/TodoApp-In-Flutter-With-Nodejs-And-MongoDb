@@ -1,3 +1,5 @@
+enum NotesStatus { initial, loading, success, deleted, error }
+
 class NoteModel {
   final String? id; // MongoDB _id will be a string
   final String? notes;

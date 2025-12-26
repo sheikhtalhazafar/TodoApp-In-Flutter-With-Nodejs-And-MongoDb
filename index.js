@@ -1,4 +1,5 @@
 const express = require('express')
+const nodemailer = require('nodemailer');
 const multer = require('multer')
 const app = express()
 const mongoose = require('mongoose')
