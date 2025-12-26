@@ -125,11 +125,14 @@ flutter run
 
 ## 📌 Future Improvements
 
-* Authentication (JWT)
+* Authentication (JWT)  
 * Role-based access
 * Real-time updates (WebSocket / Socket.io)
 * Push notifications
 
+## Feature added
+* JWT Auth
+* OTP Feature added
 ---
 
 ## 🤝 Contribution
